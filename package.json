@@ -1,0 +1,12 @@
+{
+    "private": true,
+    "workspaces": [
+      "apps/*"
+    ],
+    "dependencies": {
+      "@prisma/client": "^5.18.0"
+    },
+    "devDependencies": {
+      "prisma": "^5.18.0"
+    }
+  }
