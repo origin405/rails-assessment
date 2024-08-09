@@ -4,16 +4,14 @@ import CredentialsProvider from "next-auth/providers/credentials";
 import { verify } from 'jsonwebtoken';
 
 declare module "next-auth" {
-  interface Session {
-    user: {
-      id: string
-      name?: string | null
-      email?: string | null
-      image?: string | null
+    interface Session {
+      user: {
+        id: string
+        name: string
+        email: string
+      }
     }
   }
-}
-
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
