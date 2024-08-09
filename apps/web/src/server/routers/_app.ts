@@ -1,12 +1,11 @@
-import { router, publicProcedure } from '../trpc';
-import { z } from 'zod';
+// src/server/routers/_app.ts
+
+import { router } from '../trpc';
+import { authRouter } from './auth';
 
 export const appRouter = router({
-  hello: publicProcedure
-    .input(z.string().nullish())
-    .query(({ input }) => {
-      return `Hello ${input ?? 'World'}`;
-    }),
+  auth: authRouter,
+  // Add other routers here as needed
 });
 
 export type AppRouter = typeof appRouter;
