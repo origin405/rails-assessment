@@ -4,8 +4,8 @@ FROM node:18-alpine
 # Set the working directory in the container
 WORKDIR /app
 
-# Install pnpm
-RUN npm install -g pnpm
+# Install pnpm and necessary build tools
+RUN apk add --no-cache python3 make g++ && npm install -g pnpm
 
 # Copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
@@ -13,8 +13,9 @@ COPY package.json pnpm-lock.yaml ./
 # Copy the rest of your code
 COPY . .
 
-# Install dependencies
+# Install dependencies and generate Prisma client
 RUN pnpm install
+RUN cd apps/web && pnpm prisma generate --schema=../../prisma/schema.prisma
 
 # Build the application
 RUN pnpm -r build
