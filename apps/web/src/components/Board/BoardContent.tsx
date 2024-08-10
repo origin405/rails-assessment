@@ -35,8 +35,6 @@ const BoardContent: React.FC = () => {
   const params = useParams();
   const boardId = params.boardId as string;
   const [tabId] = useState(() => uuidv4());
-  const latestSSEDataRef = useRef<any>(null);
-
   const {
     data: boardData,
     isLoading: isBoardLoading,
@@ -70,29 +68,9 @@ const BoardContent: React.FC = () => {
 
   useEffect(() => {
     if (sseData && sseData.data && sseData.data.type === "BOARD_UPDATED") {
-      latestSSEDataRef.current = sseData.data;
+      refetchBoardData();
     }
   }, [sseData]);
-
-  useEffect(() => {
-    const handleSSEUpdate = () => {
-      if (
-        latestSSEDataRef.current &&
-        latestSSEDataRef.current.type === "BOARD_UPDATED"
-      ) {
-        refetchBoardData();
-        latestSSEDataRef.current = null; // Reset after handling
-      }
-    };
-
-    handleSSEUpdate();
-    const intervalId = setInterval(handleSSEUpdate, 1000); // Check for updates every second
-
-    return () => clearInterval(intervalId);
-  }, [refetchBoardData]);
-
-
-
 
 
 

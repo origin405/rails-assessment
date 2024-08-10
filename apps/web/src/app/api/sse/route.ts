@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-
-const clients = new Map<string, Map<string, ReadableStreamDefaultController>>();
+import { addClient, removeClient } from '@/utils/sse';
 
 export async function GET(request: NextRequest) {
   const boardId = request.nextUrl.searchParams.get('boardId');
@@ -12,23 +11,12 @@ export async function GET(request: NextRequest) {
 
   const stream = new ReadableStream({
     start(controller) {
-      if (!clients.has(boardId)) {
-        clients.set(boardId, new Map());
-      }
-      clients.get(boardId)!.set(tabId, controller);
-
-      console.log(`Client connected: boardId=${boardId}, tabId=${tabId}`);
-      console.log(`Total clients for board ${boardId}: ${clients.get(boardId)!.size}`);
+      addClient(boardId, tabId, controller);
 
       controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify({ type: 'CONNECTED' })}\n\n`));
 
       request.signal.addEventListener('abort', () => {
-        clients.get(boardId)?.delete(tabId);
-        if (clients.get(boardId)?.size === 0) {
-          clients.delete(boardId);
-        }
-        console.log(`Client disconnected: boardId=${boardId}, tabId=${tabId}`);
-        console.log(`Remaining clients for board ${boardId}: ${clients.get(boardId)?.size || 0}`);
+        removeClient(boardId, tabId);
       });
     }
   });
@@ -41,27 +29,3 @@ export async function GET(request: NextRequest) {
     },
   });
 }
-
-// Helper functions (not exported as route handlers)
-function sendSSEUpdate(boardId: string, excludeTabId: string, data: any) {
-  console.log(`Sending update for board ${boardId}, excluding tab ${excludeTabId}`);
-  console.log(`Update data:`, JSON.stringify(data));
-  
-  const boardClients = clients.get(boardId);
-  if (boardClients) {
-    let updatesSent = 0;
-    boardClients.forEach((controller, tabId) => {
-      if (tabId !== excludeTabId) {
-        controller.enqueue(new TextEncoder().encode(`data: ${JSON.stringify(data)}\n\n`));
-        console.log(`Update sent to tab ${tabId}`);
-        updatesSent++;
-      }
-    });
-    console.log(`Total updates sent for board ${boardId}: ${updatesSent}`);
-  } else {
-    console.log(`No clients found for board ${boardId}`);
-  }
-}
-
-// Export clients if needed elsewhere
-export { sendSSEUpdate };

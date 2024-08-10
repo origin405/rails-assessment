@@ -3,7 +3,7 @@ import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { router, protectedProcedure } from "../trpc";
 import prisma from "@/lib/prisma";
-import { sendSSEUpdate } from "@/app/api/sse/route";
+import { sendSSEUpdate } from "@/utils/sse";
 
 const ChangeSchema = z.object({
   type: z.enum([
