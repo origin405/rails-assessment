@@ -6,6 +6,7 @@ A full-stack web application that mimics Trello's task board functionality, buil
 - Technologies Used
 - Getting Started
 - Usage
+- Project Structure and Monorepo Setup
 - Project Architecture
 - Known Issues and Areas for Improvement
 - Learning Experience
@@ -124,6 +125,43 @@ https://rails-assessment-2wvkri3ck-lee-hong-yus-projects.vercel.app/
 
 Note: The Server-Sent Events (SSE) functionality is currently not working properly in the production environment due to Vercel's serverless architecture. This is a known issue that will be addressed in future updates.
 
+## Project Structure and Monorepo Setup
+This project utilizes a monorepo structure managed with pnpm workspaces. The monorepo setup allows us to manage multiple packages within a single repository, sharing dependencies and configurations across different parts of the application.
+
+***Monorepo Structure***
+/
+├── apps/
+│   └── web/             # Next.js application
+│       ├── package.json # Web app-specific dependencies
+│       └── ...
+├── packages/
+│   └── prisma/          # Shared Prisma schema and dependencies
+│       ├── package.json
+│       └── schema.prisma
+├── package.json         # Root package.json
+├── pnpm-workspace.yaml  # pnpm workspace configuration
+└── pnpm-lock.yaml       # Lock file for dependency versions
+
+### Key Points
+- Prisma dependencies and schema are shared across the monorepo.
+- Next.js web app dependencies are installed in the web app package.
+- This structure allows for easy expansion, e.g., adding a mobile app that shares the same database schema.
+
+### Using pnpm for Monorepo Management
+Key pnpm commands for this setup:
+
+```node
+pnpm install             # Install dependencies for all packages
+pnpm run dev --filter web  # Run the dev script for the web package
+```
+
+# Add a dependency to the web app
+pnpm add -D -w react-hot-toast --filter ./apps/web
+
+**Note**: Always run pnpm install from the root directory to ensure the pnpm-lock.yaml file is properly updated.
+
+This monorepo structure facilitates shared database schema management while keeping app-specific dependencies separate.
+
 ## Project Architecture
 
 ### Assessment Requirements
@@ -200,8 +238,6 @@ Handles reconnection logic and error states
 4. **Real-time Updates**
 - The SSE connection listens for board updates from other clients
 - When an update is received, the board data is refetched to ensure consistency
-
-
 
 
 ### Server-Sent Events (SSE) Implementation
