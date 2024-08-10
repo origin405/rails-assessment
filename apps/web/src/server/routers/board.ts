@@ -228,48 +228,6 @@ export const boardRouter = router({
 
       return lists;
     }),
-  // addList: protectedProcedure
-  // .input(z.object({
-  //   boardId: z.string(),
-  //   title: z.string().min(1).max(100),
-  // }))
-  // .mutation(async ({ input, ctx }) => {
-  //   const userId = ctx.session.user.id;
-
-  //   // Check if the board belongs to the user
-  //   const board = await prisma.board.findFirst({
-  //     where: {
-  //       id: input.boardId,
-  //       userId: userId,
-  //     },
-  //   });
-
-  //   if (!board) {
-  //     throw new TRPCError({
-  //       code: 'NOT_FOUND',
-  //       message: 'Board not found or you do not have access to it',
-  //     });
-  //   }
-
-  //   // Get the highest order of existing lists
-  //   const highestOrderList = await prisma.list.findFirst({
-  //     where: { boardId: input.boardId },
-  //     orderBy: { order: 'desc' },
-  //   });
-
-  //   const newOrder = (highestOrderList?.order ?? 0) + 1;
-
-  //   // Create the new list
-  //   const newList = await prisma.list.create({
-  //     data: {
-  //       title: input.title,
-  //       order: newOrder,
-  //       boardId: input.boardId,
-  //     },
-  //   });
-
-  //   return newList;
-  // }),
   applyChanges: protectedProcedure
     .input(
       z.object({

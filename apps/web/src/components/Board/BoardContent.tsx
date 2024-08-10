@@ -16,6 +16,7 @@ import List from "@/components/UI/List";
 import { useSSE } from "@/hooks/useSSE";
 import { v4 as uuidv4 } from "uuid";
 import LoadingSpinner from "@/components/UI/Loading";
+import toast, { Toaster } from 'react-hot-toast';
 
 type Board = {
   id: string;
@@ -30,11 +31,18 @@ const BoardContent: React.FC = () => {
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
 
-  const { board, applyChange, initializeBoard } = useBoardState();
+  const { board, applyChange, error, initializeBoard } = useBoardState();
   const [,setSelectedBoardName] = useAtom(selectedBoardNameAtom);
   const params = useParams();
   const boardId = params.boardId as string;
   const [tabId] = useState(() => uuidv4());
+
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
+
   const {
     data: boardData,
     isLoading: isBoardLoading,
@@ -211,6 +219,7 @@ const BoardContent: React.FC = () => {
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
+      <Toaster />
       <main className="flex-1 overflow-x-auto overflow-y-hidden bg-gradient-to-br from-orange-900 to-orange-500">
         <div className="h-full px-4 py-8 flex items-start space-x-4">
           <Droppable droppableId="all-lists" direction="horizontal" type="LIST">

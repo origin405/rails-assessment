@@ -1,6 +1,7 @@
 import { atom, useAtom } from "jotai";
 import { trpc } from "@/utils/trpc";
 import { useEffect, useRef, useState } from "react";
+import { TRPCClientError } from '@trpc/client';
 
 // Define your Board type
 type Board = {
@@ -100,7 +101,7 @@ export function useBoardState() {
   const changeQueueRef = useRef(changeQueue);
   const batchTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -317,11 +318,29 @@ export function useBoardState() {
           // Notify user about the conflict
         }
       }
-    } catch (error) {
-      console.error("Error processing batch:", error);
-      // Notify user about the error
+    } catch (error: unknown) {
+      if (isTRPCClientError(error)) {
+        if (error.data?.code === 'CONFLICT') {
+          handleConflict();
+        } else {
+          console.error("TRPC error:", error.message);
+          setError(`An error occurred: ${error.message}`);
+        }
+      } else {
+        console.error("Unknown error:", error);
+        setError('An unexpected error occurred. Please try again.');
+      }
     }
   };
 
-  return { board, applyChange, initializeBoard };
+  const handleConflict = () => {
+    setError('The board has been modified by another user. The page will refresh to show the latest changes.');
+    setTimeout(() => {
+      window.location.reload();
+    }, 5000);
+  };
+  const isTRPCClientError = (error: unknown): error is TRPCClientError<any> => {
+    return error instanceof TRPCClientError;
+  }
+  return { board, applyChange,     error,     initializeBoard };
 }
