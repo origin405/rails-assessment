@@ -121,11 +121,9 @@ export function useBoardState() {
       lists: lists,
       actionCounter: actionCounter, // You might want to fetch this from the server if needed
     });
-    console.log("boardState setboard data:", boardId, lists, actionCounter);
   };
 
   const applyChange = (change: Change) => {
-    console.log("apply change with payload: ", change);
     setChangeQueue((prev) => {
       const newQueue = [...prev, change];
       if (newQueue.length === 1) {
@@ -155,7 +153,6 @@ export function useBoardState() {
               },
             ],
           };
-          console.log("newBoard:", newBoard);
           return newBoard;
         case "REORDER_LIST": {
           const { sourceIndex, destinationIndex } = change.payload;
@@ -300,11 +297,9 @@ export function useBoardState() {
   const processBatch = async () => {
     batchTimerRef.current = null;
     const currentQueue = changeQueueRef.current;
-    console.log("currentQueue:", currentQueue);
     if (currentQueue.length === 0) return;
 
     const batchToProcess = [...currentQueue];
-    console.log("batchToProcess:", batchToProcess);
     setChangeQueue([]);
 
     try {

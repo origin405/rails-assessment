@@ -11,4 +11,4 @@ type User = {
 export const selectedBoardNameAtom = atom<string | null>(null);
 
 export const userAtom = atom<User | null>(null);
-export const sidebarOpenAtom = atom(true);
+export const sidebarOpenAtom = atom(false);

@@ -11,7 +11,6 @@ export function useSSE(boardId: string, tabId: string) {
     console.log(`SSE message #${messageCountRef.current} received:`, event.data);
     try {
       const newData = JSON.parse(event.data);
-      console.log('Parsed SSE data:', newData);
       setData(newData);
     } catch (parseError) {
       console.error('Error parsing SSE message:', parseError);
@@ -20,11 +19,9 @@ export function useSSE(boardId: string, tabId: string) {
 
   const connect = useCallback(() => {
     if (!boardId || !tabId) {
-      console.log('Not connecting SSE: missing boardId or tabId');
       return;
     }
     if (eventSourceRef.current) {
-      console.log('SSE connection already exists');
       return;
     }
 
@@ -50,7 +47,6 @@ export function useSSE(boardId: string, tabId: string) {
   }, [boardId, tabId, handleSSEMessage]);
 
   useEffect(() => {
-    console.log('useSSE effect running, connecting...');
     connect();
 
     return () => {

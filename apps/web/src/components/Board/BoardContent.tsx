@@ -37,8 +37,6 @@ const BoardContent: React.FC = () => {
   const [tabId] = useState(() => uuidv4());
   const latestSSEDataRef = useRef<any>(null);
 
-  console.log("BoardContent rendering, boardId:", boardId, "tabId:", tabId);
-
   const {
     data: boardData,
     isLoading: isBoardLoading,
@@ -182,8 +180,6 @@ const BoardContent: React.FC = () => {
   };
 
   const onDragEnd = (result: DropResult) => {
-    // console.log("Drag ended:", result);
-
     const { destination, source, draggableId, type } = result;
 
     if (!destination) {
@@ -248,7 +244,6 @@ const BoardContent: React.FC = () => {
                   className="flex space-x-4"
                 >
                   {board.lists?.map((list, index) => {
-                    // console.log(`Rendering list: id=${list.id}, index=${index}, type=${typeof list.id}`);
                     return (
                       <Draggable
                         key={list.id}

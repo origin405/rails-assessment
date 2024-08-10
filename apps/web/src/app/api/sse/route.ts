@@ -42,7 +42,7 @@ export async function GET(request: NextRequest) {
   });
 }
 
-// Helper function to send updates (not exported)
+// Helper functions (not exported as route handlers)
 function sendSSEUpdate(boardId: string, excludeTabId: string, data: any) {
   console.log(`Sending update for board ${boardId}, excluding tab ${excludeTabId}`);
   console.log(`Update data:`, JSON.stringify(data));
@@ -63,5 +63,5 @@ function sendSSEUpdate(boardId: string, excludeTabId: string, data: any) {
   }
 }
 
-// If you need to access clients or sendSSEUpdate from other files, export them like this:
-export { clients, sendSSEUpdate as updateSSE };
+// Export clients if needed elsewhere
+export { sendSSEUpdate };

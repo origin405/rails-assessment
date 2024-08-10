@@ -25,11 +25,6 @@ const Sidebar: React.FC = () => {
   const [deletingBoardId, setDeletingBoardId] = useState<string | null>(null);
   const router = useRouter();
 
-  const renderCount = useRef(0);
-  renderCount.current += 1;
-
-  console.log(`Sidebar rendering #${renderCount.current}`);
-  console.log('sidebarOpen:', sidebarOpen);
 
   const boardsQuery = trpc.board.listBoards.useQuery();
   const addBoardMutation = trpc.board.addBoard.useMutation({
