@@ -6,6 +6,9 @@ type User = {
   email: string | null;
 };
 
+
+
+export const selectedBoardNameAtom = atom<string | null>(null);
+
 export const userAtom = atom<User | null>(null);
-export const selectedBoardIdAtom = atom<string | null>(null);
-export const sidebarOpenAtom = atom(false);
+export const sidebarOpenAtom = atom(true);

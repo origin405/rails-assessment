@@ -1,72 +1,29 @@
+// app/board/page.tsx
 "use client"
-import React, { useEffect } from 'react';
+import React from 'react';
+import { useSession } from 'next-auth/react';
 import { useAtom } from 'jotai';
-import { trpc } from '@/utils/trpc';
-import Header from '@/components/Board/Header';
-import Sidebar from '@/components/Board/Sidebar';
-import BoardContent from '@/components/Board/BoardContent';
-import {  userAtom, sidebarOpenAtom } from '@/atoms/boardAtoms';
-import {  useSession  } from 'next-auth/react';
+import { userAtom } from '@/atoms/boardAtoms';
 
-const Board = () => {
+const BoardDefaultPage = () => {
   const { data: session } = useSession();
-  const [user, setUser] = useAtom(userAtom);
-  const [sidebarOpen, setSidebarOpen] = useAtom(sidebarOpenAtom);
+  const [, setUser] = useAtom(userAtom);
 
-  // Fetch board data
-  // const boardQuery = trpc.board.getBoard.useQuery({ userId: /* user ID */ });
-
-  // Fetch user data
-  // const userQuery = trpc.user.getUser.useQuery({ userId: /* user ID */ });
-
-  //  useEffect(() => {
-  //   console.log("data: ", session);
-  // });
-  useEffect(() => {
-    if (session?.user) {
-      setUser({
-        id: session.user.id,
-        name: session.user.name,
-        email: session.user.email,
-      });
-      console.log("user:", user);
-    }
-  }, [session, setUser]);
+  // Similar useEffect as in your [boardId]/page.tsx to set user data
 
   if (!session) {
     return <div>Loading...</div>; // Or redirect to login
   }
 
-  // useEffect(() => {
-  //   if (boardQuery.data) setBoard(boardQuery.data);
-  //   if (userQuery.data) setUser(userQuery.data);
-  // }, [boardQuery.data, userQuery.data, setBoard, setUser]);
-
-  // if (boardQuery.isLoading || userQuery.isLoading) {
-  //   return <div>Loading...</div>;
-  // }
-
-  // if (boardQuery.isError || userQuery.isError) {
-  //   return <div>Error loading board data</div>;
-  // }
-
-
-    return (
-      <div className="h-screen flex overflow-hidden bg-gradient-to-br from-orange-900 to-orange-500">
-      <Sidebar />
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <Header />
-        <BoardContent />
-         {/* Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 z-20 bg-black bg-opacity-30 transition-opacity "
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-      </div>
+  return (
+    <div className="flex-1 overflow-y-auto p-6">
+      <h1 className="text-2xl font-bold mb-4">Welcome to Your Boards</h1>
+      {/* Add content here. For example: */}
+      <p>Select a board from the sidebar or create a new one to get started.</p>
+      {/* You could add a list of boards here if the user has any */}
+      {/* Or add a button to create a new board */}
     </div>
+  );
+}
 
-    )};
-
-export default Board;
+export default BoardDefaultPage;

@@ -5,8 +5,6 @@ import { signIn  } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { trpc } from '@/utils/trpc';
 
-
-
 const AuthPage = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
@@ -18,11 +16,6 @@ const AuthPage = () => {
   const loginMutation = trpc.auth.login.useMutation();
   const registerMutation = trpc.auth.register.useMutation();
 
-  // useEffect(() => {
-  //   if (session?.user?.id) {
-  //     router.push(`/board/${session.user.id}`);
-  //   }
-  // });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
