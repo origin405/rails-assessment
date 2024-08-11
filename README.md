@@ -50,13 +50,12 @@ A full-stack web application that mimics Trello's task board functionality, buil
 - Database: PostgreSQL
 - ORM: Prisma
 - State Management: Jotai
-- Authentication: NextAuth
+- Authentication: Custom tRPC Auth + NextAuth
 - Monorepo Management: PNPM Workspaces
 - Containerization: Docker
 - CI/CD: GitHub Actions
-- Deployment: Vercel
+- Deployment: Vercel, Vercel Postgres
 - Testing: Jest
-
 
 
 ## Getting Started
