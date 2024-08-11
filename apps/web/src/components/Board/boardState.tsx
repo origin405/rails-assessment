@@ -88,26 +88,15 @@ type Change =
     };
 
 const boardAtom = atom<Board | null>(null);
-const changeQueueAtom = atom<Change[]>([]);
-const savedStateAtom = atom<Board | null>(null);
 
-// let batchTimer: NodeJS.Timeout | null = null;
 
 export function useBoardState() {
   const [board, setBoard] = useAtom(boardAtom);
-  const [changeQueue, setChangeQueue] = useAtom(changeQueueAtom);
-  const [savedState, setSavedState] = useAtom(savedStateAtom);
-  const applyChangesMutation = trpc.board.applyChanges.useMutation();
-  const changeQueueRef = useRef(changeQueue);
+  const changeQueueRef = useRef<Change[]>([]);
+  const savedStateRef = useRef<Board | null>(null);
   const batchTimerRef = useRef<NodeJS.Timeout | null>(null);
-
-  const [error, setError] = useState<string | null>(null);
-
-
-  useEffect(() => {
-    changeQueueRef.current = changeQueue;
-  }, [changeQueue]);
-
+  const applyChangesMutation = trpc.board.applyChanges.useMutation();
+  const [error, setError] = useState<string | null>(null)
 
 
   const initializeBoard = (
@@ -125,15 +114,13 @@ export function useBoardState() {
   };
 
   const applyChange = (change: Change) => {
-    setChangeQueue((prev) => {
-      const newQueue = [...prev, change];
-      if (newQueue.length === 1) {
-        setSavedState(board);
-        scheduleBatch();
-      }
-      return newQueue;
-    });
+    changeQueueRef.current.push(change);
     applyChangeLocally(change);
+
+    if (changeQueueRef.current.length === 1) {
+      savedStateRef.current = board;
+      scheduleBatch();
+    }
   };
 
   const applyChangeLocally = (change: Change) => {
@@ -297,42 +284,62 @@ export function useBoardState() {
 
   const processBatch = async () => {
     batchTimerRef.current = null;
-    const currentQueue = changeQueueRef.current;
-    if (currentQueue.length === 0) return;
+    if (changeQueueRef.current.length === 0) return;
 
-    const batchToProcess = [...currentQueue];
-    setChangeQueue([]);
+    const batchToProcess = [...changeQueueRef.current];
 
     try {
       const result = await applyChangesMutation.mutateAsync({
         boardId: board?.id ?? "",
-        tabId: board?.tabId ?? "", 
+        tabId: board?.tabId ?? "",
         changes: batchToProcess,
         currentActionCounter: board?.actionCounter ?? 0,
       });
+
       if (result.success) {
-        setSavedState(null);
-      } else {
-        if (savedState) {
-          setBoard(savedState);
-          // Notify user about the conflict
+        // Remove processed changes from the queue
+        changeQueueRef.current = changeQueueRef.current.slice(batchToProcess.length);
+        savedStateRef.current = null;
+
+        // If there are more changes, schedule another batch
+        if (changeQueueRef.current.length > 0) {
+          scheduleBatch();
         }
+      } else {
+        throw new Error("Changes were not applied successfully");
       }
     } catch (error: unknown) {
+      console.error("Error in processBatch:", error);
+
+      // Revert to saved state
+      if (savedStateRef.current) {
+        console.log("Reverting to saved state:", savedStateRef.current);
+        setBoard(savedStateRef.current);
+      }
+
+      // Clear the entire change queue
+      changeQueueRef.current = [];
+
+      // Reset the batch timer
+      if (batchTimerRef.current) {
+        clearTimeout(batchTimerRef.current);
+        batchTimerRef.current = null;
+      }
+
       if (isTRPCClientError(error)) {
         if (error.data?.code === 'CONFLICT') {
           handleConflict();
         } else {
-          console.error("TRPC error:", error.message);
           setError(`An error occurred: ${error.message}`);
         }
       } else {
-        console.error("Unknown error:", error);
         setError('An unexpected error occurred. Please try again.');
       }
+
+      // Do not continue processing after reverting
+      return;
     }
   };
-
   const handleConflict = () => {
     setError('The board has been modified by another user. The page will refresh to show the latest changes.');
     setTimeout(() => {
@@ -342,5 +349,5 @@ export function useBoardState() {
   const isTRPCClientError = (error: unknown): error is TRPCClientError<any> => {
     return error instanceof TRPCClientError;
   }
-  return { board, applyChange,     error,     initializeBoard };
+  return { board, applyChange,     error, setError,    initializeBoard };
 }

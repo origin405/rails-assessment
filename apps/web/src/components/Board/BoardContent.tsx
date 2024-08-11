@@ -18,28 +18,22 @@ import { v4 as uuidv4 } from "uuid";
 import LoadingSpinner from "@/components/UI/Loading";
 import toast, { Toaster } from 'react-hot-toast';
 
-type Board = {
-  id: string;
-  name: string;
-  actionCounter: number;
-  createdAt: string;
-  updatedAt: string;
-  tabId: string;
-};
 
 const BoardContent: React.FC = () => {
   const [isAddingList, setIsAddingList] = useState(false);
   const [newListTitle, setNewListTitle] = useState("");
 
-  const { board, applyChange, error, initializeBoard } = useBoardState();
+  const { board, applyChange, error, setError, initializeBoard } = useBoardState();
   const [,setSelectedBoardName] = useAtom(selectedBoardNameAtom);
   const params = useParams();
   const boardId = params.boardId as string;
   const [tabId] = useState(() => uuidv4());
 
   useEffect(() => {
+    console.log("error triggered")
     if (error) {
       toast.error(error);
+      setError(null);
     }
   }, [error]);
 
