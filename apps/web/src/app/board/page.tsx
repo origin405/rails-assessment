@@ -35,7 +35,7 @@ const BoardDefaultPage = () => {
         <h1 className="text-5xl font-bold mb-4 text-textcolor text-center">
           Welcome to
           <span className="block text-5xl sm:text-6xl md:text-6xl lg:text-8xl xl:text-8xl mt-6 bg-clip-text text-transparent bg-gradient-to-r from-yellow-300 via-red-400 to-pink-400 animate-bounce">
-            Mini on Rails
+            Trello on Rails
           </span>
         </h1>
         <div className="bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg rounded-xl shadow-2xl p-8 border border-orange-300 transition-all duration-300 hover:shadow-orange-400/50">
