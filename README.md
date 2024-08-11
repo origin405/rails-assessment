@@ -112,7 +112,6 @@ openssl rand -hex 32
 Navigate to the apps/web directory and start the development server:
 
 ```bash
-Copy code
 cd apps/web
 pnpm dev
 ```

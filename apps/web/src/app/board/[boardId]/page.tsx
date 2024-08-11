@@ -12,6 +12,7 @@ const Board = () => {
 
   useEffect(() => {
     if (session?.user) {
+      console.log("setting user")
       setUser({
         id: session.user.id,
         name: session.user.name,
