@@ -109,7 +109,7 @@ export function useBoardState() {
       id: boardId,
       tabId: tabId,
       lists: lists,
-      actionCounter: actionCounter, // You might want to fetch this from the server if needed
+      actionCounter: actionCounter, 
     });
   };
 
@@ -287,7 +287,8 @@ export function useBoardState() {
     if (changeQueueRef.current.length === 0) return;
 
     const batchToProcess = [...changeQueueRef.current];
-
+    console.log("batchToProcess: ", batchToProcess);
+    console.log("board?.actionCounter: ", board?.actionCounter);
     try {
       const result = await applyChangesMutation.mutateAsync({
         boardId: board?.id ?? "",
@@ -303,6 +304,7 @@ export function useBoardState() {
 
         // If there are more changes, schedule another batch
         if (changeQueueRef.current.length > 0) {
+          console.log("scheduling another batch")
           scheduleBatch();
         }
       } else {
@@ -342,9 +344,9 @@ export function useBoardState() {
   };
   const handleConflict = () => {
     setError('The board has been modified by another user. The page will refresh to show the latest changes.');
-    setTimeout(() => {
-      window.location.reload();
-    }, 5000);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 5000);
   };
   const isTRPCClientError = (error: unknown): error is TRPCClientError<any> => {
     return error instanceof TRPCClientError;
