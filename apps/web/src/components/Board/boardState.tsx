@@ -287,8 +287,6 @@ export function useBoardState() {
     if (changeQueueRef.current.length === 0) return;
 
     const batchToProcess = [...changeQueueRef.current];
-    console.log("batchToProcess: ", batchToProcess);
-    console.log("board?.actionCounter: ", board?.actionCounter);
     try {
       const result = await applyChangesMutation.mutateAsync({
         boardId: board?.id ?? "",
