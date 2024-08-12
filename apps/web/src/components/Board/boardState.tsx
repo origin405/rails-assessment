@@ -344,9 +344,9 @@ export function useBoardState() {
   };
   const handleConflict = () => {
     setError('The board has been modified by another user. The page will refresh to show the latest changes.');
-    // setTimeout(() => {
-    //   window.location.reload();
-    // }, 5000);
+    setTimeout(() => {
+      window.location.reload();
+    }, 5000);
   };
   const isTRPCClientError = (error: unknown): error is TRPCClientError<any> => {
     return error instanceof TRPCClientError;
