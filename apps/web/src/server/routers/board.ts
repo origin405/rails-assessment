@@ -442,7 +442,7 @@ export const boardRouter = router({
           return updatedBoard.actionCounter;
         });
         if (result) {
-          console.log("sending sse update:", input);
+          console.log("Sending sse update:", input);
           sendSSEUpdate(input.boardId, input.tabId, {
             type: "BOARD_UPDATED",
             board: result,

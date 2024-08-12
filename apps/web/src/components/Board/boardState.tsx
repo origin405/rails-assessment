@@ -302,7 +302,6 @@ export function useBoardState() {
 
         // If there are more changes, schedule another batch
         if (changeQueueRef.current.length > 0) {
-          console.log("scheduling another batch")
           scheduleBatch();
         }
       } else {
@@ -313,7 +312,6 @@ export function useBoardState() {
 
       // Revert to saved state
       if (savedStateRef.current) {
-        console.log("Reverting to saved state:", savedStateRef.current);
         setBoard(savedStateRef.current);
       }
 

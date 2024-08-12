@@ -30,7 +30,6 @@ const BoardContent: React.FC = () => {
   const [tabId] = useState(() => uuidv4());
 
   useEffect(() => {
-    console.log("error triggered")
     if (error) {
       toast.error(error);
       setError(null);
