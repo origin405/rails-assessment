@@ -96,8 +96,8 @@ export function useBoardState() {
   const savedStateRef = useRef<Board | null>(null);
   const batchTimerRef = useRef<NodeJS.Timeout | null>(null);
   const applyChangesMutation = trpc.board.applyChanges.useMutation();
-  const [error, setError] = useState<string | null>(null)
-
+  const [error, setError] = useState<string | null>(null);
+  const actionCounterRef = useRef<number>(0); // New ref for action counter
 
   const initializeBoard = (
     boardId: string,
@@ -111,26 +111,27 @@ export function useBoardState() {
       lists: lists,
       actionCounter: actionCounter, 
     });
+    actionCounterRef.current = actionCounter
   };
 
+
   const applyChange = (change: Change) => {
+    if (changeQueueRef.current.length === 0) {
+      savedStateRef.current = board;
+    }
     changeQueueRef.current.push(change);
     applyChangeLocally(change);
-
-    if (changeQueueRef.current.length === 1) {
-      savedStateRef.current = board;
-      scheduleBatch();
-    }
+    scheduleBatch();
   };
 
   const applyChangeLocally = (change: Change) => {
+
     setBoard((prevBoard) => {
       if (!prevBoard) return prevBoard;
       switch (change.type) {
         case "ADD_LIST":
           const newBoard = {
             ...prevBoard,
-            actionCounter: prevBoard.actionCounter + 1, // Increment actionCounter
             lists: [
               ...prevBoard.lists,
               {
@@ -156,13 +157,11 @@ export function useBoardState() {
           return {
             ...prevBoard,
             lists: updatedLists,
-            actionCounter: prevBoard.actionCounter + 1,
           };
         }
         case "ADD_CARD":
           return {
             ...prevBoard,
-            actionCounter: prevBoard.actionCounter + 1,
             lists: prevBoard.lists.map((list) =>
               list.id === change.payload.listId
                 ? {
@@ -215,7 +214,6 @@ export function useBoardState() {
           return {
             ...prevBoard,
             lists: newLists,
-            actionCounter: prevBoard.actionCounter + 1,
           };
         }
         case "DELETE_LIST":
@@ -224,7 +222,6 @@ export function useBoardState() {
             lists: prevBoard.lists.filter(
               (list) => list.id !== change.payload.listId
             ),
-            actionCounter: prevBoard.actionCounter + 1,
           };
 
         case "UPDATE_LIST_TITLE":
@@ -235,7 +232,6 @@ export function useBoardState() {
                 ? { ...list, title: change.payload.newTitle }
                 : list
             ),
-            actionCounter: prevBoard.actionCounter + 1,
           };
         case "UPDATE_CARD_CONTENT":
           return {
@@ -252,7 +248,6 @@ export function useBoardState() {
                   }
                 : list
             ),
-            actionCounter: prevBoard.actionCounter + 1,
           };
 
         case "DELETE_CARD":
@@ -268,7 +263,6 @@ export function useBoardState() {
                   }
                 : list
             ),
-            actionCounter: prevBoard.actionCounter + 1,
           };
         // Handle other change types here
         default:
@@ -278,40 +272,47 @@ export function useBoardState() {
   };
   const scheduleBatch = () => {
     if (batchTimerRef.current === null) {
-      batchTimerRef.current = setTimeout(processBatch, 500);
+      batchTimerRef.current = setTimeout(processBatch, 2000);
     }
   };
 
   const processBatch = async () => {
     batchTimerRef.current = null;
     if (changeQueueRef.current.length === 0) return;
-
     const batchToProcess = [...changeQueueRef.current];
+    // console.log("batchToProcess: ", batchToProcess);
+    // console.log("batchToProcess.length: ", batchToProcess.length)
+
+    // console.log("savedStateRef actionCounter: ", savedStateRef.current?.actionCounter);
     try {
       const result = await applyChangesMutation.mutateAsync({
         boardId: board?.id ?? "",
         tabId: board?.tabId ?? "",
         changes: batchToProcess,
-        currentActionCounter: board?.actionCounter ?? 0,
+        currentActionCounter: actionCounterRef.current,
       });
 
       if (result.success) {
         // Remove processed changes from the queue
         changeQueueRef.current = changeQueueRef.current.slice(batchToProcess.length);
         savedStateRef.current = null;
+        actionCounterRef.current = result.newActionCounter;
+        // console.log("actionCounterRef actioncounter:", actionCounterRef.current)
 
         // If there are more changes, schedule another batch
         if (changeQueueRef.current.length > 0) {
+          // console.log("scheduling another batch")
           scheduleBatch();
         }
       } else {
         throw new Error("Changes were not applied successfully");
       }
     } catch (error: unknown) {
-      console.error("Error in processBatch:", error);
+      // console.error("Error in processBatch:", error);
 
       // Revert to saved state
       if (savedStateRef.current) {
+        // console.log("Reverting to saved state:", savedStateRef.current);
         setBoard(savedStateRef.current);
       }
 

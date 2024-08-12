@@ -255,7 +255,7 @@ export const boardRouter = router({
         });
       }
 
-      if (board.actionCounter > input.currentActionCounter) {
+      if (board.actionCounter !== input.currentActionCounter) {
         throw new TRPCError({
           code: "CONFLICT",
           message: "Board has been modified. Please refresh and try again." + "board.actionCounter: " + board.actionCounter + "input.currentActionCounter: " + input.currentActionCounter,
