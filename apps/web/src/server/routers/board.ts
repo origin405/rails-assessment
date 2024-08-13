@@ -258,7 +258,12 @@ export const boardRouter = router({
       if (board.actionCounter !== input.currentActionCounter) {
         throw new TRPCError({
           code: "CONFLICT",
-          message: "Board has been modified. Please refresh and try again." + "board.actionCounter: " + board.actionCounter + "input.currentActionCounter: " + input.currentActionCounter,
+          message:
+            "Board has been modified. Please refresh and try again." +
+            "board.actionCounter: " +
+            board.actionCounter +
+            "input.currentActionCounter: " +
+            input.currentActionCounter,
         });
       }
 
@@ -270,6 +275,7 @@ export const boardRouter = router({
               case "ADD_LIST":
                 await prisma.list.create({
                   data: {
+                    id: change.payload.listId,
                     title: change.payload.title,
                     boardId: input.boardId,
                     order: await prisma.list.count({
@@ -279,24 +285,27 @@ export const boardRouter = router({
                 });
                 break;
               case "DELETE_LIST":
+                // Delete all cards associated with the list
+                await prisma.card.deleteMany({
+                  where: { listId: change.payload.listId },
+                });
+                // Delete the list itself
                 await prisma.list.delete({
                   where: { id: change.payload.listId },
                 });
-                // Optionally, you might want to reorder the remaining lists
+                // Fetch remaining lists
                 const remainingLists = await prisma.list.findMany({
                   where: { boardId: input.boardId },
                   orderBy: { order: "asc" },
                 });
-                await Promise.all(
-                  remainingLists.map((list, index) =>
-                    prisma.list.update({
-                      where: { id: list.id },
-                      data: { order: index },
-                    })
-                  )
-                );
+                // Update the order of remaining lists
+                for (let i = 0; i < remainingLists.length; i++) {
+                  await prisma.list.update({
+                    where: { id: remainingLists[i].id },
+                    data: { order: i },
+                  });
+                }
                 break;
-
               case "UPDATE_LIST_TITLE":
                 await prisma.list.update({
                   where: { id: change.payload.listId },
@@ -330,6 +339,7 @@ export const boardRouter = router({
               case "ADD_CARD":
                 await prisma.card.create({
                   data: {
+                    id: change.payload.cardId,
                     content: change.payload.content,
                     listId: change.payload.listId,
                     order: await prisma.card.count({
@@ -432,12 +442,16 @@ export const boardRouter = router({
                 throw new Error(`Unsupported change type: ${change.type}`);
             }
           }
-
+          console.log("");
           // Update action counter
           const updatedBoard = await prisma.board.update({
             where: { id: input.boardId },
             data: { actionCounter: { increment: 1 } },
           });
+          console.log(
+            "updatedBoard.actionCounter:",
+            updatedBoard.actionCounter
+          );
 
           return updatedBoard.actionCounter;
         });

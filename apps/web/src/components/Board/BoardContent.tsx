@@ -77,11 +77,14 @@ const BoardContent: React.FC = () => {
 
   const handleAddList = () => {
     if (newListTitle.trim() && board) {
+      const newListId = uuidv4();
+
       applyChange({
         type: "ADD_LIST",
         payload: {
           boardId: board.id,
           title: newListTitle.trim(),
+          listId: newListId,
         },
       });
       setNewListTitle("");
@@ -91,11 +94,13 @@ const BoardContent: React.FC = () => {
 
   const handleAddCard = (listId: string, content: string) => {
     if (board) {
+      const newCardId = uuidv4();
       applyChange({
         type: "ADD_CARD",
         payload: {
           boardId: board.id,
           listId,
+          cardId: newCardId,
           content,
         },
       });

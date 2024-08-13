@@ -27,6 +27,8 @@ type Card = {
 type AddListPayload = {
   boardId: string;
   title: string;
+  listId: string;
+
 };
 type ReorderListPayload = {
   boardId: string;
@@ -37,6 +39,8 @@ type AddCardPayload = {
   boardId: string;
   listId: string;
   content: string;
+  cardId: string;
+
 };
 type MoveCardPayload = {
   boardId: string;
@@ -135,7 +139,7 @@ export function useBoardState() {
             lists: [
               ...prevBoard.lists,
               {
-                id: `temp-${Date.now()}`, // Temporary ID until server responds
+                id: change.payload.listId, // Temporary ID until server responds
                 title: change.payload.title,
                 order: prevBoard.lists.length,
                 cards: [],
@@ -169,7 +173,7 @@ export function useBoardState() {
                     cards: [
                       ...list.cards,
                       {
-                        id: `temp-${Date.now()}`,
+                        id: change.payload.cardId,
                         content: change.payload.content,
                         order: list.cards.length,
                       },
@@ -341,9 +345,9 @@ export function useBoardState() {
   };
   const handleConflict = () => {
     setError('The board has been modified by another user. The page will refresh to show the latest changes.');
-    setTimeout(() => {
-      window.location.reload();
-    }, 5000);
+    // setTimeout(() => {
+    //   window.location.reload();
+    // }, 5000);
   };
   const isTRPCClientError = (error: unknown): error is TRPCClientError<any> => {
     return error instanceof TRPCClientError;
