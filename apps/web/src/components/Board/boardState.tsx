@@ -139,7 +139,7 @@ export function useBoardState() {
             lists: [
               ...prevBoard.lists,
               {
-                id: change.payload.listId, // Temporary ID until server responds
+                id: change.payload.listId, 
                 title: change.payload.title,
                 order: prevBoard.lists.length,
                 cards: [],
