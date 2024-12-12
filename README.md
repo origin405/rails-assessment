@@ -120,7 +120,7 @@ You can now access the application at http://localhost:3000 in your web browser.
 
 ### Deployment
 The application is deployed on Vercel with a Vercel Postgres database. You can visit the live application at:
-https://rails-assessment-2wvkri3ck-lee-hong-yus-projects.vercel.app/
+[https://rails-assessment.vercel.app/](https://rails-assessment.vercel.app/)
 
 Note: The Server-Sent Events (SSE) functionality is currently not working properly in the production environment due to Vercel's serverless architecture. This is a known issue that will be addressed in future updates.
 
